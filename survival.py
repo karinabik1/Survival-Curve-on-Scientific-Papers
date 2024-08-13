@@ -13,15 +13,14 @@ data['RT'] = data['RT'].fillna(0)
 data['EoC'] = data['EoC'].fillna(0)
 data['CR'] = data['CR'].fillna(0)
 
-print('yay')
-
 # Convert dates to datetime format if they are not already
 data['Email to Editor'] = pd.to_datetime(data['Email to Editor'])
 data['Correction or Retraction Date'] = pd.to_datetime(data['Correction or Retraction Date'])
 
-# Calculate time from 'Email to Editor' to 'Correction or Retraction Date'
+# Calculate survival time from 'Email to Editor' to 'Correction or Retraction Date'
 data['Survival Time'] = (data['Correction or Retraction Date'] - data['Email to Editor']).dt.days
 
+# some helpful metrics:
 #print(data['Survival Time'])
 t = 0
 n = 0
@@ -36,13 +35,12 @@ print('Total', t)
 print('Negative', n)
 print('NaN', u)
 
-
 # Create a binary survival indicator
 # If all of 'CR', 'EoC', or 'RT' columns are 0, set 'Survival' to False (not corrected or retracted)
 # Otherwise, set 'Survival' to True (corrected or retracted)
 data['Survival'] = data.apply(lambda row: False if row['CR'] == 0 and row['EoC'] == 0 and row['RT'] == 0 else True, axis=1)
 
-
+# more helpful metrics:
 tt = 0
 s = 0
 for x in data['Survival']:
@@ -53,9 +51,8 @@ print('Total', tt)
 print('Survived', s)
 print('Not Survived', t - s)
 
-
+# Fill NaNs in 'Survival Time' with the maximum non-NaN value
 data['Survival Time'] = data['Survival Time'].fillna(np.nanmax(data['Survival Time']))
-
 
 # Initialize KaplanMeierFitter for all data
 kmf = KaplanMeierFitter()
